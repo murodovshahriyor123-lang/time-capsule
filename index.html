@@ -6,102 +6,68 @@
 <title>TIME CAPSULE</title>
 
 <style>
-* {
-  box-sizing: border-box;
-}
-
 body {
   margin: 0;
-  min-height: 100vh;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #080b18, #17123b, #071d2b);
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   padding: 20px;
-}
-
-.container {
-  width: 100%;
-  max-width: 650px;
+  min-height: 100vh;
+  background: #0b1020;
+  color: white;
+  font-family: Arial, sans-serif;
   text-align: center;
 }
 
-h1 {
-  font-size: 42px;
-  margin-bottom: 8px;
-}
-
-.subtitle {
-  color: #bfc5ff;
-  margin-bottom: 30px;
+.container {
+  max-width: 600px;
+  margin: 50px auto;
 }
 
 .card {
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 22px;
+  background: #171d32;
   padding: 25px;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+  border-radius: 20px;
 }
 
 textarea,
 input {
   width: 100%;
-  padding: 15px;
+  padding: 14px;
   margin: 10px 0;
+  box-sizing: border-box;
+  border-radius: 10px;
   border: none;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.1);
-  color: white;
-  outline: none;
   font-size: 16px;
 }
 
 textarea {
-  height: 160px;
-  resize: vertical;
+  height: 150px;
 }
 
 button {
   width: 100%;
   padding: 15px;
-  margin-top: 12px;
+  margin-top: 10px;
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   background: #6c63ff;
   color: white;
   font-size: 17px;
   font-weight: bold;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #8179ff;
 }
 
 .hidden {
   display: none;
 }
 
-.lock {
-  font-size: 55px;
+#countdown {
+  font-size: 20px;
+  margin: 20px 0;
 }
 
 .id {
-  background: rgba(0,0,0,0.25);
+  background: #0b1020;
   padding: 12px;
-  border-radius: 10px;
-  margin: 15px 0;
+  border-radius: 8px;
   word-break: break-all;
-}
-
-.countdown {
-  font-size: 22px;
-  font-weight: bold;
-  margin-top: 20px;
 }
 </style>
 </head>
@@ -110,156 +76,97 @@ button:hover {
 
 <div class="container">
 
-  <h1>⏳ TIME CAPSULE</h1>
+<h1>⏳ TIME CAPSULE</h1>
+<p>Kelajakdagi o‘zingga xat qoldir</p>
 
-  <div class="subtitle">
-    Kelajakdagi o‘zingga xat qoldir
-  </div>
+<div class="card" id="create">
 
-  <div class="card" id="createBox">
+<textarea id="message" placeholder="Kelajakdagi o‘zingga xat yoz..."></textarea>
 
-    <textarea id="message"
-      placeholder="Kelajakdagi o‘zingga xat yoz..."></textarea>
+<input type="date" id="date">
 
-    <input id="date" type="date">
+<button id="createButton">🔐 Kapsula yaratish</button>
 
-    <button onclick="createCapsule()">
-      🔐 Kapsula yaratish
-    </button>
+</div>
 
-  </div>
+<div class="card hidden" id="result">
 
-  <div class="card hidden" id="capsuleBox">
+<div style="font-size:55px;">🔒</div>
 
-    <div class="lock">🔒</div>
+<h2>Kapsula qulflangan</h2>
 
-    <h2>Kapsula qulflangan</h2>
+<p>Ochilish sanasi:</p>
 
-    <p>Ochilish sanasi:</p>
+<h3 id="openDate"></h3>
 
-    <h3 id="openDate"></h3>
+<div id="countdown"></div>
 
-    <div class="countdown" id="countdown"></div>
+<p>📦 Kapsula ID:</p>
 
-    <p>📦 Kapsula ID:</p>
+<div class="id" id="capsuleId"></div>
 
-    <div class="id" id="capsuleId"></div>
-
-    <button onclick="copyId()">
-      📋 ID nusxalash
-    </button>
-
-  </div>
+</div>
 
 </div>
 
 <script>
 
-let timer;
+document.getElementById("createButton").onclick = function () {
 
-function generateId() {
-  return "TC-" +
-    Math.random().toString(36).substring(2, 8).toUpperCase() +
-    "-" +
-    Date.now().toString().slice(-5);
-}
+  var message = document.getElementById("message").value;
+  var date = document.getElementById("date").value;
 
-function createCapsule() {
-
-  const message = document.getElementById("message").value;
-  const date = document.getElementById("date").value;
-
-  if (!message.trim()) {
+  if (message.trim() === "") {
     alert("Avval xat yozing!");
     return;
   }
 
-  if (!date) {
-    alert("Ochilish sanasini tanlang!");
+  if (date === "") {
+    alert("Avval sana tanlang!");
     return;
   }
 
-  const selectedDate = new Date(date + "T00:00:00");
+  var target = new Date(date + "T00:00:00").getTime();
+  var now = new Date().getTime();
 
-  if (selectedDate <= new Date()) {
+  if (target <= now) {
     alert("Kelajakdagi sanani tanlang!");
     return;
   }
 
-  const id = generateId();
+  var id = "TC-" + Math.random().toString(36).substring(2, 8).toUpperCase();
 
-  localStorage.setItem("capsuleMessage", message);
-  localStorage.setItem("capsuleDate", selectedDate.getTime());
-  localStorage.setItem("capsuleId", id);
+  document.getElementById("create").classList.add("hidden");
+  document.getElementById("result").classList.remove("hidden");
 
-  showCapsule();
-}
+  document.getElementById("openDate").innerText = date;
+  document.getElementById("capsuleId").innerText = id;
 
-function showCapsule() {
+  function countdown() {
 
-  const date = Number(localStorage.getItem("capsuleDate"));
-  const id = localStorage.getItem("capsuleId");
+    var now = new Date().getTime();
+    var difference = target - now;
 
-  if (!date || !id) return;
-
-  document.getElementById("createBox").classList.add("hidden");
-  document.getElementById("capsuleBox").classList.remove("hidden");
-
-  const openDate = new Date(date);
-
-  document.getElementById("openDate").textContent =
-    openDate.toLocaleDateString("uz-UZ");
-
-  document.getElementById("capsuleId").textContent = id;
-
-  clearInterval(timer);
-
-  timer = setInterval(function() {
-
-    const now = new Date().getTime();
-    const distance = date - now;
-
-    if (distance <= 0) {
-
-      clearInterval(timer);
-
-      document.getElementById("countdown").textContent =
+    if (difference <= 0) {
+      document.getElementById("countdown").innerText =
         "🎉 Kapsula ochildi!";
-
       return;
     }
 
-    const days = Math.floor(
-      distance / (1000 * 60 * 60 * 24)
-    );const hours = Math.floor(
-      (distance / (1000 * 60 * 60)) % 24
-    );
+    var days = Math.floor(difference / 86400000);
+    var hours = Math.floor((difference % 86400000) / 3600000);
+    var minutes = Math.floor((difference % 3600000) / 60000);
+    var seconds = Math.floor((difference % 60000) / 1000);
 
-    const minutes = Math.floor(
-      (distance / (1000 * 60)) % 60
-    );
+    document.getElementById("countdown").innerText =
+      "⏳ " + days + " kun " +
+      hours + " soat " +
+      minutes + " daqiqa " +
+      seconds + " soniya";
+  }
 
-    const seconds = Math.floor(
-      (distance / 1000) % 60
-    );
-
-    document.getElementById("countdown").textContent =
-      ⏳ ${days} kun ${hours} soat ${minutes} daqiqa ${seconds} soniya;
-
-  }, 1000);
-}
-
-function copyId() {
-
-  const id = document.getElementById("capsuleId").textContent;
-
-  navigator.clipboard.writeText(id);
-
-  alert("Kapsula ID nusxalandi!");
-}
-
-window.onload = function() {
-  showCapsule();
+  countdown();
+  setInterval(countdown, 1000);
 };
 
 </script>
