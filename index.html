@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>TIME CAPSULE</title>
+
+<style>
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: #080812;
+    color: white;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.box {
+    width: 90%;
+    max-width: 650px;
+    text-align: center;
+}
+
+h1 {
+    font-size: 45px;
+}
+
+.subtitle {
+    color: #aaa;
+    font-size: 18px;
+}
+
+textarea {
+    width: 100%;
+    height: 180px;
+    margin-top: 25px;
+    padding: 15px;
+    box-sizing: border-box;
+    border-radius: 15px;
+    border: 1px solid #444;
+    background: #151522;
+    color: white;
+    font-size: 16px;
+    resize: none;
+}
+
+input {
+    margin-top: 15px;
+    padding: 13px;
+    border-radius: 10px;
+    border: none;
+    font-size: 16px;
+}
+
+button {
+    margin-top: 20px;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 12px;
+    background: white;
+    color: black;
+    font-size: 17px;
+    cursor: pointer;
+}
+
+#result {
+    margin-top: 20px;
+    font-size: 18px;
+}
+
+.locked {
+    color: #ffcc66;
+}
+
+.opened {
+    color: #7cffb2;
+}
+
+#letter {
+    margin-top: 25px;
+    padding: 20px;
+    background: #151522;
+    border-radius: 15px;
+    text-align: left;
+    display: none;
+    white-space: pre-wrap;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<h1>🕰️ TIME CAPSULE</h1>
+
+<p class="subtitle">
+Kelajakdagi o‘zingga xat qoldir.
+</p>
+
+<textarea id="message"
+placeholder="Kelajakdagi o‘zingga nima demoqchisan?"></textarea>
+
+<br>
+
+<input type="date" id="date">
+
+<br>
+
+<button onclick="createCapsule()">
+🔒 Kapsulani yaratish
+</button>
+
+<div id="result"></div>
+
+<div id="letter"></div>
+
+</div>
+
+<script>
+
+function createCapsule() {
+
+    let message = document.getElementById("message").value;
+    let date = document.getElementById("date").value;
+
+    if (message === "" || date === "") {
+        document.getElementById("result").innerHTML =
+        "⚠️ Xat va sanani kiriting!";
+        return;
+    }
+
+    let selectedDate = new Date(date + "T00:00:00");
+    let now = new Date();
+
+    if (selectedDate <= now) {
+        document.getElementById("result").innerHTML =
+        "⚠️ Kelajakdagi sanani tanlang!";
+        return;
+    }
+
+    localStorage.setItem("capsuleMessage", message);
+    localStorage.setItem("capsuleDate", date);
+
+    document.getElementById("message").value = "";
+
+    checkCapsule();
+}
+
+function checkCapsule() {
+
+    let message = localStorage.getItem("capsuleMessage");
+    let date = localStorage.getItem("capsuleDate");
+
+    if (!message || !date) {
+        return;
+    }
+
+    let target = new Date(date + "T00:00:00");
+    let now = new Date();
+
+    let result = document.getElementById("result");
+    let letter = document.getElementById("letter");
+
+    if (now >= target) {
+
+        result.innerHTML =
+        "📬 <span class='opened'>KAPSULA OCHILDI!</span>";
+
+        letter.style.display = "block";
+        letter.innerHTML =
+        "💌 Kelajakdagi xatingiz:<br><br>" + message;
+
+    } else {
+
+        let difference = target - now;
+
+        let days = Math.floor(
+            difference / (1000 * 60 * 60 * 24)
+        );
+
+        let hours = Math.floor(
+            (difference / (1000 * 60 * 60)) % 24
+        );
+
+        let minutes = Math.floor(
+            (difference / (1000 * 60)) % 60
+        );
+
+        result.innerHTML =
+        "🔒 <span class='locked'>Kapsula qulflangan.</span><br><br>" +
+        "📅 Ochilish sanasi: " + date +
+        "<br>⏳ Qolgan vaqt: " +
+        days + " kun " +
+        hours + " soat " +
+        minutes + " daqiqa";
+
+        letter.style.display = "none";
+    }
+}
+
+setInterval(checkCapsule, 1000);
+
+checkCapsule();
+
+</script>
+
+</body>
+</html>
