@@ -3,208 +3,264 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>TIME CAPSULE</title>
 
 <style>
-body {
-    margin: 0;
-    min-height: 100vh;
-    background: #080812;
-    color: white;
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+* {
+  box-sizing: border-box;
 }
 
-.box {
-    width: 90%;
-    max-width: 650px;
-    text-align: center;
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #080b18, #17123b, #071d2b);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.container {
+  width: 100%;
+  max-width: 650px;
+  text-align: center;
 }
 
 h1 {
-    font-size: 45px;
+  font-size: 42px;
+  margin-bottom: 8px;
 }
 
 .subtitle {
-    color: #aaa;
-    font-size: 18px;
+  color: #bfc5ff;
+  margin-bottom: 30px;
+}
+
+.card {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 22px;
+  padding: 25px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+}
+
+textarea,
+input {
+  width: 100%;
+  padding: 15px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.1);
+  color: white;
+  outline: none;
+  font-size: 16px;
 }
 
 textarea {
-    width: 100%;
-    height: 180px;
-    margin-top: 25px;
-    padding: 15px;
-    box-sizing: border-box;
-    border-radius: 15px;
-    border: 1px solid #444;
-    background: #151522;
-    color: white;
-    font-size: 16px;
-    resize: none;
-}
-
-input {
-    margin-top: 15px;
-    padding: 13px;
-    border-radius: 10px;
-    border: none;
-    font-size: 16px;
+  height: 160px;
+  resize: vertical;
 }
 
 button {
-    margin-top: 20px;
-    padding: 15px 30px;
-    border: none;
-    border-radius: 12px;
-    background: white;
-    color: black;
-    font-size: 17px;
-    cursor: pointer;
+  width: 100%;
+  padding: 15px;
+  margin-top: 12px;
+  border: none;
+  border-radius: 12px;
+  background: #6c63ff;
+  color: white;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
 }
 
-#result {
-    margin-top: 20px;
-    font-size: 18px;
+button:hover {
+  background: #8179ff;
 }
 
-.locked {
-    color: #ffcc66;
+.hidden {
+  display: none;
 }
 
-.opened {
-    color: #7cffb2;
+.lock {
+  font-size: 55px;
 }
 
-#letter {
-    margin-top: 25px;
-    padding: 20px;
-    background: #151522;
-    border-radius: 15px;
-    text-align: left;
-    display: none;
-    white-space: pre-wrap;
+.id {
+  background: rgba(0,0,0,0.25);
+  padding: 12px;
+  border-radius: 10px;
+  margin: 15px 0;
+  word-break: break-all;
+}
+
+.countdown {
+  font-size: 22px;
+  font-weight: bold;
+  margin-top: 20px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="box">
+<div class="container">
 
-<h1>🕰️ TIME CAPSULE</h1>
+  <h1>⏳ TIME CAPSULE</h1>
 
-<p class="subtitle">
-Kelajakdagi o‘zingga xat qoldir.
-</p>
+  <div class="subtitle">
+    Kelajakdagi o‘zingga xat qoldir
+  </div>
 
-<textarea id="message"
-placeholder="Kelajakdagi o‘zingga nima demoqchisan?"></textarea>
+  <div class="card" id="createBox">
 
-<br>
+    <textarea id="message"
+      placeholder="Kelajakdagi o‘zingga xat yoz..."></textarea>
 
-<input type="date" id="date">
+    <input id="date" type="date">
 
-<br>
+    <button onclick="createCapsule()">
+      🔐 Kapsula yaratish
+    </button>
 
-<button onclick="createCapsule()">
-🔒 Kapsulani yaratish
-</button>
+  </div>
 
-<div id="result"></div>
+  <div class="card hidden" id="capsuleBox">
 
-<div id="letter"></div>
+    <div class="lock">🔒</div>
+
+    <h2>Kapsula qulflangan</h2>
+
+    <p>Ochilish sanasi:</p>
+
+    <h3 id="openDate"></h3>
+
+    <div class="countdown" id="countdown"></div>
+
+    <p>📦 Kapsula ID:</p>
+
+    <div class="id" id="capsuleId"></div>
+
+    <button onclick="copyId()">
+      📋 ID nusxalash
+    </button>
+
+  </div>
 
 </div>
 
 <script>
 
+let timer;
+
+function generateId() {
+  return "TC-" +
+    Math.random().toString(36).substring(2, 8).toUpperCase() +
+    "-" +
+    Date.now().toString().slice(-5);
+}
+
 function createCapsule() {
 
-    let message = document.getElementById("message").value;
-    let date = document.getElementById("date").value;
+  const message = document.getElementById("message").value;
+  const date = document.getElementById("date").value;
 
-    if (message === "" || date === "") {
-        document.getElementById("result").innerHTML =
-        "⚠️ Xat va sanani kiriting!";
-        return;
-    }
+  if (!message.trim()) {
+    alert("Avval xat yozing!");
+    return;
+  }
 
-    let selectedDate = new Date(date + "T00:00:00");
-    let now = new Date();
+  if (!date) {
+    alert("Ochilish sanasini tanlang!");
+    return;
+  }
 
-    if (selectedDate <= now) {
-        document.getElementById("result").innerHTML =
-        "⚠️ Kelajakdagi sanani tanlang!";
-        return;
-    }
+  const selectedDate = new Date(date + "T00:00:00");
 
-    localStorage.setItem("capsuleMessage", message);
-    localStorage.setItem("capsuleDate", date);
+  if (selectedDate <= new Date()) {
+    alert("Kelajakdagi sanani tanlang!");
+    return;
+  }
 
-    document.getElementById("message").value = "";
+  const id = generateId();
 
-    checkCapsule();
+  localStorage.setItem("capsuleMessage", message);
+  localStorage.setItem("capsuleDate", selectedDate.getTime());
+  localStorage.setItem("capsuleId", id);
+
+  showCapsule();
 }
 
-function checkCapsule() {
+function showCapsule() {
 
-    let message = localStorage.getItem("capsuleMessage");
-    let date = localStorage.getItem("capsuleDate");
+  const date = Number(localStorage.getItem("capsuleDate"));
+  const id = localStorage.getItem("capsuleId");
 
-    if (!message || !date) {
-        return;
+  if (!date || !id) return;
+
+  document.getElementById("createBox").classList.add("hidden");
+  document.getElementById("capsuleBox").classList.remove("hidden");
+
+  const openDate = new Date(date);
+
+  document.getElementById("openDate").textContent =
+    openDate.toLocaleDateString("uz-UZ");
+
+  document.getElementById("capsuleId").textContent = id;
+
+  clearInterval(timer);
+
+  timer = setInterval(function() {
+
+    const now = new Date().getTime();
+    const distance = date - now;
+
+    if (distance <= 0) {
+
+      clearInterval(timer);
+
+      document.getElementById("countdown").textContent =
+        "🎉 Kapsula ochildi!";
+
+      return;
     }
 
-    let target = new Date(date + "T00:00:00");
-    let now = new Date();
+    const days = Math.floor(
+      distance / (1000 * 60 * 60 * 24)
+    );const hours = Math.floor(
+      (distance / (1000 * 60 * 60)) % 24
+    );
 
-    let result = document.getElementById("result");
-    let letter = document.getElementById("letter");
+    const minutes = Math.floor(
+      (distance / (1000 * 60)) % 60
+    );
 
-    if (now >= target) {
+    const seconds = Math.floor(
+      (distance / 1000) % 60
+    );
 
-        result.innerHTML =
-        "📬 <span class='opened'>KAPSULA OCHILDI!</span>";
+    document.getElementById("countdown").textContent =
+      ⏳ ${days} kun ${hours} soat ${minutes} daqiqa ${seconds} soniya;
 
-        letter.style.display = "block";
-        letter.innerHTML =
-        "💌 Kelajakdagi xatingiz:<br><br>" + message;
-
-    } else {
-
-        let difference = target - now;
-
-        let days = Math.floor(
-            difference / (1000 * 60 * 60 * 24)
-        );
-
-        let hours = Math.floor(
-            (difference / (1000 * 60 * 60)) % 24
-        );
-
-        let minutes = Math.floor(
-            (difference / (1000 * 60)) % 60
-        );
-
-        result.innerHTML =
-        "🔒 <span class='locked'>Kapsula qulflangan.</span><br><br>" +
-        "📅 Ochilish sanasi: " + date +
-        "<br>⏳ Qolgan vaqt: " +
-        days + " kun " +
-        hours + " soat " +
-        minutes + " daqiqa";
-
-        letter.style.display = "none";
-    }
+  }, 1000);
 }
 
-setInterval(checkCapsule, 1000);
+function copyId() {
 
-checkCapsule();
+  const id = document.getElementById("capsuleId").textContent;
+
+  navigator.clipboard.writeText(id);
+
+  alert("Kapsula ID nusxalandi!");
+}
+
+window.onload = function() {
+  showCapsule();
+};
 
 </script>
 
